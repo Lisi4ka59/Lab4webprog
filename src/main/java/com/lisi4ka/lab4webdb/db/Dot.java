@@ -20,8 +20,7 @@ public class Dot {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long count;
     private float X, Y, R;
-    private int userId, red, green, blue;
-    private long flightTime;
-    private String result;
-    private Date date;
+    private int red, green, blue;
+    private long flightTime, userId;
+    private String result, date;
 }

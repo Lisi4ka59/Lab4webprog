@@ -2,6 +2,7 @@ package com.lisi4ka.lab4webdb.utils;
 
 import com.lisi4ka.lab4webdb.db.Dot;
 import com.lisi4ka.lab4webdb.db.DotRepository;
+import com.lisi4ka.lab4webdb.db.RegUserRepository;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -9,10 +10,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import static com.lisi4ka.lab4webdb.utils.Check.tokenMap;
+import static com.lisi4ka.lab4webdb.utils.DateNow.dateTimeNow;
 import static com.lisi4ka.lab4webdb.utils.ImageToByteArray.imageToByteArray;
 
 public abstract class GraphicsService {
-    public static byte[] drawGraphic(String inputX, String inputY, String inputR, String inputRandom, String userId, DotRepository dotRepository) throws IOException {
+    public static byte[] drawGraphic(String inputX, String inputY, String inputR, String inputRandom, String token, DotRepository dotRepository, RegUserRepository regUserRepository) throws IOException {
         long scriptStartTime = System.nanoTime();
 
         long flightTime;
@@ -22,14 +25,17 @@ public abstract class GraphicsService {
         float y;
         float radius;
         float random;
-        int currentUserId;
+        Long userId;
         try {
-            currentUserId = Integer.parseInt(userId);
+            long parsedToken = Long.parseLong(token);
+            String user = tokenMap.inverse().get(parsedToken);
+            userId = regUserRepository.findByUsername(user).get().getId();
             x = Float.parseFloat(inputX);
             y = Float.parseFloat(inputY);
             radius = Float.parseFloat(inputR);
             random = Float.parseFloat(inputRandom);
         } catch (Exception ex) {
+            ex.printStackTrace();
             File file = new File("classes/static/cover.jpg");
             image = ImageIO.read(file);
             return imageToByteArray(image, "jpeg");
@@ -54,8 +60,8 @@ public abstract class GraphicsService {
         graphics.setColor(new Color(255, 255, 255));
         graphics.fillRect(0, 0, 200, 200);
         graphics.setColor(new Color(51, 153, 255));
-        graphics.fillRect(100, 27, 72, 73);
-        graphics.fillArc(27, 27, 150, 150, 270, 90);
+        graphics.fillRect(100, 27, 74, 73);
+        graphics.fillArc(26, 26, 148, 148, 270, 90);
         graphics.fillPolygon(new int[]{63, 100, 100}, new int[]{100, 100, 136}, 3);
         graphics.setColor(new Color(0, 0, 0));
         graphics.fillRect(8, 99, 184, 2);
@@ -98,13 +104,11 @@ public abstract class GraphicsService {
 
 
         try {
-            Dot dot;
-            Iterable<Dot> dots = dotRepository.findAllByUserId(currentUserId);
-            while (dots.iterator().hasNext()) {
-                dot = dots.iterator().next();
+
+            Iterable<Dot> dots = dotRepository.findAllByUserId(userId);
+            for (Dot dot:dots){
                 graphics.setColor(new Color(dot.getRed(), dot.getGreen(), dot.getBlue()));
                 graphics.fillOval(Math.round(((dot.getX() * 74 / radius) + 100)) - 2, -(-Math.round(-((dot.getY() * 74 / radius) - 100)) + 2), 5, 5);
-
             }
 
         } catch (Exception ex) {
@@ -112,23 +116,25 @@ public abstract class GraphicsService {
             System.out.println("Ошибка при подключении к БД!");
         }
 
+        if (x != 1000) {
+            try {
+                Dot dot = new Dot();
+                dot.setX((x - 100) / 74 * radius);
+                dot.setY((100 - y) / 74 * radius);
+                dot.setR(radius);
+                dot.setRed(re);
+                dot.setGreen(gr);
+                dot.setBlue(bl);
+                dot.setResult(result[3]);
+                dot.setDate(dateTimeNow());
+                flightTime = System.nanoTime() - scriptStartTime;
+                dot.setFlightTime(flightTime);
+                dot.setUserId(userId);
+                dotRepository.save(dot);
 
-        try {
-            Dot dot = new Dot();
-            dot.setX((x - 100) / 74 * radius);
-            dot.setY((100 - y) / 74 * radius);
-            dot.setR(radius);
-            dot.setRed(re);
-            dot.setGreen(gr);
-            dot.setBlue(bl);
-            dot.setResult(result[1]);
-            flightTime = scriptStartTime - System.nanoTime();
-            dot.setFlightTime(flightTime);
-            dot.setUserId(currentUserId);
-            dotRepository.save(dot);
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         graphics.dispose();
         return imageToByteArray(image, "jpeg");

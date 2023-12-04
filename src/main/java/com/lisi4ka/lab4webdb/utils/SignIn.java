@@ -15,6 +15,7 @@ public abstract class SignIn {
         Optional<RegUser> regUser = regUserRepository.findByUsername(login);
         boolean isSign = regUser.isPresent() && regUser.get().getPassword().equals(hashedPassword);
         if (isSign) {
+            tokenMap.remove(login);
             tokenMap.put(login, token);
         }
         return isSign;

@@ -4,5 +4,6 @@ import org.springframework.data.repository.CrudRepository;
 
 
 public interface DotRepository extends CrudRepository<Dot, Long> {
-    Iterable<Dot> findAllByUserId(int userId);
+    Iterable<Dot> findAllByUserId(long userId);
+    //void deleteDotByUserId(long userId);
 }
