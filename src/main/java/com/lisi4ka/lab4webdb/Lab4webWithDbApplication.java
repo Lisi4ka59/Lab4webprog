@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.lisi4ka.lab4webdb.db.DotRepository;
 import com.lisi4ka.lab4webdb.db.RegUserRepository;
 import com.lisi4ka.lab4webdb.utils.Clear;
+import com.lisi4ka.lab4webdb.utils.DotValidator;
 import com.lisi4ka.lab4webdb.utils.GraphicsService;
 import com.lisi4ka.lab4webdb.utils.TableService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.management.*;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 
 import static com.lisi4ka.lab4webdb.utils.Check.checkToken;
 import static com.lisi4ka.lab4webdb.utils.CurrentTime.jsonTimeNow;
@@ -34,8 +37,19 @@ public class Lab4webWithDbApplication {
 	public DotRepository dotRepository;
 	@Autowired
 	public RegUserRepository regUserRepository;
+	public static DotValidator dotValidator = new DotValidator();
 
 	public static void main(String[] args) {
+		try {
+			ObjectName timeMBean = new ObjectName("com.lisi4ka.lab4webdb.server:type=basic, name=dotValidatorDot");
+			ObjectName dotMBean = new ObjectName("com.lisi4ka.lab4webdb.server:type=basic, name=dotValidatorTime");
+			MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+			server.registerMBean(dotValidator, timeMBean);
+			server.registerMBean(dotValidator, dotMBean);
+
+
+		} catch (MalformedObjectNameException | InstanceAlreadyExistsException |
+				 MBeanRegistrationException | NotCompliantMBeanException ignored) {}
 		SpringApplication.run(Lab4webWithDbApplication.class, args);
 	}
 

@@ -1,5 +1,6 @@
 package com.lisi4ka.lab4webdb.utils;
 
+import com.lisi4ka.lab4webdb.Lab4webWithDbApplication;
 import com.lisi4ka.lab4webdb.db.Dot;
 import com.lisi4ka.lab4webdb.db.DotRepository;
 import com.lisi4ka.lab4webdb.db.RegUserRepository;
@@ -50,7 +51,7 @@ public abstract class GraphicsService {
         int gr;
         int re;
         int bl;
-        String[] result = DotValidator.result(X, Y, R, random);
+        String[] result = Lab4webWithDbApplication.dotValidator.result(X, Y, R, random);
         re = Integer.parseInt(result[0]);
         gr = Integer.parseInt(result[1]);
         bl = Integer.parseInt(result[2]);
