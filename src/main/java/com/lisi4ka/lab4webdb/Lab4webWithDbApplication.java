@@ -41,13 +41,9 @@ public class Lab4webWithDbApplication {
 
 	public static void main(String[] args) {
 		try {
-			ObjectName timeMBean = new ObjectName("com.lisi4ka.lab4webdb.server:type=basic, name=dotValidatorDot");
-			ObjectName dotMBean = new ObjectName("com.lisi4ka.lab4webdb.server:type=basic, name=dotValidatorTime");
+			ObjectName dotMBean = new ObjectName("com.lisi4ka.lab4webdb.server:type=basic, name=dotValidator");
 			MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-			server.registerMBean(dotValidator, timeMBean);
 			server.registerMBean(dotValidator, dotMBean);
-
-
 		} catch (MalformedObjectNameException | InstanceAlreadyExistsException |
 				 MBeanRegistrationException | NotCompliantMBeanException ignored) {}
 		SpringApplication.run(Lab4webWithDbApplication.class, args);

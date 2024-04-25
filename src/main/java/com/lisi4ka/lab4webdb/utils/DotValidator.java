@@ -2,12 +2,14 @@ package com.lisi4ka.lab4webdb.utils;
 
 import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
+import java.text.DecimalFormat;
 
-public class DotValidator extends NotificationBroadcasterSupport implements DotValidatorMBean, DotValidatorTimeMBean{
+public class DotValidator extends NotificationBroadcasterSupport implements DotValidatorMBean{
+    DecimalFormat df = new DecimalFormat("#.##");
     private int dotCount = 0;
     private int missDotCount = 0;
     private int _sequence = 0;
-    private long averageTime = 0;
+    private double averageTime = 0;
     private long lastTime = System.currentTimeMillis();
     public String[] result(Float X, Float Y, Float R, Float random) {
         int gr;
@@ -20,7 +22,7 @@ public class DotValidator extends NotificationBroadcasterSupport implements DotV
                 re = 60;
                 bl = 60;
                 text = "Не пробил!";
-                calculateAverageTime(averageTime, lastTime, dotCount);
+                calculateAverageTime(lastTime, averageTime, dotCount);
                 dotCount++;
                 return new String[]{String.valueOf(re), String.valueOf(gr), String.valueOf(bl), text};
             } else {
@@ -28,7 +30,7 @@ public class DotValidator extends NotificationBroadcasterSupport implements DotV
                 re = 0;
                 bl = 0;
                 text = "Есть пробитие!";
-                calculateAverageTime(averageTime, lastTime, dotCount);
+                calculateAverageTime(lastTime, averageTime, dotCount);
                 dotCount++;
                 return new String[]{String.valueOf(re), String.valueOf(gr), String.valueOf(bl), text};
             }
@@ -38,7 +40,7 @@ public class DotValidator extends NotificationBroadcasterSupport implements DotV
                 re = 150;
                 bl = 150;
                 text = "Рикошет!";
-                calculateAverageTime(averageTime, lastTime, dotCount);
+                calculateAverageTime(lastTime, averageTime, dotCount);
                 dotCount++;
                 return new String[]{String.valueOf(re), String.valueOf(gr), String.valueOf(bl), text};
             } else {
@@ -46,7 +48,7 @@ public class DotValidator extends NotificationBroadcasterSupport implements DotV
                 re = 255;
                 bl = 0;
                 text = "Не попал!";
-                calculateAverageTime(averageTime, lastTime, dotCount);
+                calculateAverageTime(lastTime, averageTime, dotCount);
                 dotCount++;
                 missDotCount++;
                 if (missDotCount % 4 == 0) {
@@ -58,7 +60,7 @@ public class DotValidator extends NotificationBroadcasterSupport implements DotV
         }
     }
 
-    void calculateAverageTime(long lastTime, long averageTime, int dotCount) {
+    void calculateAverageTime(long lastTime, double averageTime, int dotCount) {
         this.averageTime = (averageTime * dotCount + (System.currentTimeMillis() - lastTime)) / (dotCount + 1);
         this.lastTime = System.currentTimeMillis();
     }
@@ -74,7 +76,7 @@ public class DotValidator extends NotificationBroadcasterSupport implements DotV
     }
 
     @Override
-    public float getAverageTimeSeconds() {
-        return (float) averageTime / 1000;
+    public String getAverageTimeSeconds() {
+        return df.format(averageTime / 1000.0);
     }
 }
